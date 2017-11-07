@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    
+    <!--<link rel="stylesheet" type="text/css" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
+    <!--<link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css">-->
+    
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.min.css"/>
+
+    <!--<link rel="stylesheet" type="text/css" href="../static/lib/css/main.css">   -->
+    <link rel="stylesheet" type="text/css" href="/static/lib/css/main.css">   
+    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
+    
+</head>
+<body>
+<!--*************************************************************************-->
+
+<section>
+    <div class="container md-col-12">
+        <div class="row" style="padding: 40px">
+            <h1>Dashboard project</h1>
+        </div>
+    </div>
+</section>
+
+<!--*************************************************************************-->
+
+<section>
+    <div class="container-fluid">
+    
+        <div class="col-lg-12">
+            
+            <div class="col-lg-offset-2 col-lg-12" style="padding: 20px">
+                <h6>Graph Title</h6>
+                <div id="chart1"></div>
+            </div>
+            
+        </div>
+
+    </div>
+</section>
+
+<!--*************************************************************************-->
+
+<section>
+    <div class="container-fluid">
+    
+        <div class="col-lg-12">
+            
+            <div class="col-lg-offset-2 col-lg-12" style="padding: 20px">
+                <h6>Graph Title</h6>
+                <div id="chart2"></div>
+            </div>
+            
+        </div>
+
+    </div>
+</section>
+
+<!--*************************************************************************-->
+
+<section>
+    <div class="container-fluid">
+        <div class="col-lg-12">
+            
+            <div class="col-lg-offset-2 col-lg-12" style="padding: 20px">
+
+                <table id="album_table">
+                    <thead>
+                        <tr>
+                            <th>Albums </th>
+                            <th>Number Of Plays</th>
+                            <hr>
+                        </tr>
+                    </thead>
+                </table>
+            </div>    
+        </div>
+    </div>
+</section>
+
+<!--*************************************************************************-->
+
+<section>
+    <div class="container-fluid">
+        
+        <div class="col-lg-12">
+            
+            <div class="col-lg-offset-2 col-lg-12" style="padding: 20px">
+                <h6>Graph Title</h6>
+                <div id="chart3"></div>
+            </div>
+            
+        </div>
+
+    </div>
+</section>
+
+<!--*************************************************************************-->
+
+<section>
+    <div class="container-fluid">
+        
+        <div class="col-lg-12">
+            
+            <div class="col-lg-offset-2 col-lg-12" style="padding: 20px">
+                <h6>Graph Title</h6>
+                <div id="chart4"></div>
+            </div>
+            
+        </div>
+
+    </div>
+</section>
+
+<!--*************************************************************************-->
+<script>    
+
+queue()
+    // .defer(d3.json, "../bob_dylan_songs.json")
+    // .defer(d3.json, "../top_30_songs.json")
+    .defer(d3.json, "/bob_dylan_songs")
+    .defer(d3.json, "/top_30_songs")
+    .await(makeGraphs);
+
+function makeGraphs(error, bob_dylan_songs, top_30_songs) {
+    bob_dylan_Graphs(bob_dylan_songs);
+    top_30_graphs(top_30_songs);
+}
+
+
+function bob_dylan_Graphs(bob_dylan_songs) {
+
+    var ndx = crossfilter(bob_dylan_songs)
+    
+    var parseDate = d3.time.format("%d/%m/%Y").parse;
+    
+    bob_dylan_songs.forEach(function(d) {
+        d.first_date = parseDate(d.first_date);
+        d.last_date = parseDate(d.last_date);
+        d.album_year = parseInt(d.album_year);
+    });
+    
+// -----------------------------------------------------------------------------
+
+    var album_dim = ndx.dimension(dc.pluck('album'));
+    var count_numplays_album = album_dim.group().reduceSum(dc.pluck('num_plays'));    
+
+    dc.rowChart("#chart1")
+        .width(600)
+        .height(500)
+        .margins({top: 30, right: 50, bottom: 40, left: 40})
+        .x(d3.scale.linear().domain([6,20]))
+        .elasticX(true)
+        .cap(10)
+        .othersGrouper(false)
+        
+        .dimension(album_dim)
+        .group(count_numplays_album)
+
+        // .render();
+
+// -----------------------------------------------------------------------------
+
+    var song_dim = ndx.dimension(dc.pluck('song_title'));
+    var count_numplays_song = song_dim.group().reduceSum(dc.pluck('num_plays'));    
+    
+    dc.rowChart("#chart2")
+        .width(600)
+        .height(500)
+        .margins({top: 30, right: 50, bottom: 40, left: 40})
+        .x(d3.scale.linear().domain([6,20]))
+        .elasticX(true)
+        .cap(10)
+        .othersGrouper(false)
+        .dimension(song_dim)
+        .group(count_numplays_song)
+        .filter = function() {}
+        
+        // .render();        
+        
+// -----------------------------------------------------------------------------
+
+// song value is the longevity of the song: last_date - first_date played. 
+// album value = average of song values within the album
+
+    var album_dim = ndx.dimension( function(d){ if (d.num_plays > 0) {return d.album;};});
+    var count_album_value = album_dim.group().reduceSum(function(d){
+        if(d.num_plays > 0) {
+            var timeDiff = Math.abs(d.last_date - d.first_date)
+            var daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            d.album_total = Math.max(daysDiff, 1);
+            } else {
+                d.album_total = 0
+            };
+        return d.album_total
+        });  
+    
+    console.log(count_album_value.all());
+
+    // dc.scatterChart("#chart4")
+    //     .width(900)
+    //     .height(500)
+    //     .margins({top: 30, right: 50, bottom: 40, left: 40})
+    //     .dimension(album_year_dim)
+    //     .group(count_numplays_date)
+    //     .transitionDuration(500)
+    //     .x(d3.scale.ordinal())
+    //     .xUnits(dc.units.ordinal)
+    //     .elasticX(true)
+    //     .xAxisLabel("")
+    //     .yAxisLabel("")
+    //     .yAxis().ticks(20)
+        
+
+// -----------------------------------------------------------------------------
+
+    dc.renderAll();
+}
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+function top_30_graphs(top_30_data) {
+
+    var ndx = crossfilter(top_30_data)
+
+    var albumSelect = ndx.dimension(function(d) {return d.album})
+    var count_numplays_song = albumSelect.group().reduceSum(function(d) {return d.num_plays}); 
+
+    group_text = function (p) { return "" };
+    
+    dc.dataTable("#album_table")
+        .width(768)
+        .height(480)
+        .dimension(count_numplays_song)
+        .group(group_text)
+        .columns([function (d) { return d.key },
+                  function (d) { return d.value }])
+        .sortBy(function (d) { return d.value })
+        .order(d3.descending);
+        
+                
+// -----------------------------------------------------------------------------
+    
+    var song_chart_dim = ndx.dimension(function(d) {return d.song_title});
+    var song_chart_pos = song_chart_dim.group().reduceSum(function(d) {return d.num_plays});
+    
+    dc.barChart("#chart3")
+        .width(900)
+        .height(700)
+        .margins({top: 30, right: 50, bottom: 150, left: 100})
+        
+        .x(d3.scale.ordinal())
+        .xUnits(dc.units.ordinal)
+        .transitionDuration(500)
+        
+        // .x(d3.scale.linear().domain([6,20]))
+        // .elasticX(true)
+        // .cap(10)
+        // .othersGrouper(false)
+        
+        .dimension(song_chart_dim)
+        .group(song_chart_pos)
+        .ordering(function(d) { return d.song_chart_pos; })
+        .xAxisLabel("")
+        .yAxisLabel("")
+        .yAxis().ticks(4)
+    
+    dc.renderAll();
+}    
+// -----------------------------------------------------------------------------
+
+</script>
+<!--*************************************************************************-->
+
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>-->
+
+<!--<script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>-->
+<!--<script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.js"></script>-->
+    
+</body>
+</html>

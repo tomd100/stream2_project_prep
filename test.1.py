@@ -1,6 +1,4 @@
 
-from flask import Flask
-from flask import render_template
 from pymongo import MongoClient
 import json
 import os
@@ -19,5 +17,5 @@ with MongoClient(MONGODB_URI) as conn:
 
 song_list = list(song_list);
 for song in song_list:
-    if song["album"] == "Self Portrait" :
-        print(song["num_plays"], song["first_date"], song["last_date"])
+    if song["album_year"] == "":
+        print(song["album"], song["num_plays"], song["first_date"], song["last_date"], song["album_year"])

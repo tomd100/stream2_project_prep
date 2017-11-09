@@ -8,29 +8,37 @@ from auth import MONGODB_URI
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-def get_top_30():
+def get_stripped():
     
+    album_list = [];
     song_list = [];
-    top_30_list = [];
+    stripped_list = [];
+    #--------------------------------------------------------------------------- 
+    # Upload stripped album list
+    
+    with open("text_files/album_stripped_list.txt", "r") as inFile:
+        for line in inFile:
+            line = line[:-1]    # remove end-of-line char
+            album_list.append(line);
+    inFile.close();
     
     #--------------------------------------------------------------------------- 
     # Download all songs from mongodb
     
     song_list = list(download_mongo("bob_dylan_songs"))
-    
     for song in song_list:
-        if song["song_chart_pos"] != "-1":
-            top_30_list.append(song)
+        if song["album"] in album_list and song["num_plays"] != "0":
+            stripped_list.append(song)
 
-    return top_30_list
+    return stripped_list
     
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-def upload_mongo(song_list):
+def upload_mongo(song_list, collection_name):
     
     database_name = "stream2_project";
-    collection_name= "top_30_songs";
+    collection_name= collection_name;
     
     with MongoClient(MONGODB_URI) as conn:
         db = conn[database_name];
@@ -62,8 +70,8 @@ def download_mongo(collection_name):
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-top_30_list = get_top_30()
-upload_mongo(top_30_list)
+stripped_list = get_stripped()
+upload_mongo(stripped_list, "stripped_song_list")
 
 
 

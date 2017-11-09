@@ -17,11 +17,11 @@ with MongoClient(MONGODB_URI) as conn:
 
 song_list = list(song_list);
 for song in song_list:
-    if song["album_year"] == "2012":
-        fd = song["first_date"];
-        ld = song["last_date"];
+    if song["album_year"] == "1965":
+        # fd = song["first_date"];
+        # ld = song["last_date"];
         
-        fd.parse("%d/%m/%Y")
+        # fd.parse("%d/%m/%Y")
         # date_diff = ld.getTime() - fd.getTime();
         
-        print(song["album"], song["num_plays"], song["first_date"], song["last_date"], song["album_year"])
+        print(song["album"], song["song_title"], song["num_plays"], song["first_date"], song["last_date"], song["album_year"])

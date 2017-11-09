@@ -29,3 +29,4 @@ def download_json(collection_name, file_name):
 # download_json("bob_dylan_songs", "output.json");    
 # download_json("bob_dylan_songs", "bob_dylan_songs.json");
 # download_json("top_30_songs", "top_30_songs.json");
+download_json("stripped_song_list", "stripped_songs.json");

@@ -1,13 +1,15 @@
 import re
 import json
 
-
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 def parse_for_albums():
     
     album_set = set();
     album_list = [];
-
-    with open("../text_files/bd_web_page_copy.txt", 'r') as inFile:
+    
+    file_name = path_to_data + "bd_web_page_copy.txt"
+    with open(file_name, 'r') as inFile:
         
         upper = "[A-Z]"
         lower = "[a-z]"
@@ -53,7 +55,9 @@ def parse_for_albums():
     album_list.sort()
     
     # output album list to file.
-    outFile = open("../text_files/album_list.txt", "+w")
+    file_name = path_to_data + "album_list.txt"
+    
+    outFile = open(file_name, "+w")
     for x, album in enumerate(album_list):
         outFile.write(album);
         if x < len(album_list) - 1:
@@ -62,21 +66,22 @@ def parse_for_albums():
     
     return;
 
-    
+# ------------------------------------------------------------------------------    
 
 def check_for_other_albums():
     
     album_list = [];
-
-    with open("../text_files/album_list.txt", "r") as albumFile:
+    
+    file_name = path_to_data + "album_list.txt";
+    with open(file_name, "r") as albumFile:
         for line in albumFile:
             line = line[:-1]
             album_list.append(line);
     albumFile.close();
         
-    outFile = open("../text_files/missing_albums.txt", "+w");
+    outFile = open(path_to_data + "missing_albums.txt", "+w");
     
-    with open("../text_files/bd_web_page_copy.txt", 'r') as inFile:
+    with open(path_to_data + "bd_web_page_copy.txt", 'r') as inFile:
         for line in inFile:
             pos = -1;
             found = 0;
@@ -90,8 +95,15 @@ def check_for_other_albums():
     outFile.close();
     return;
 
-parse_for_albums()     
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
+path_to_data = "../data/";
+path_to_text = "../../text_files/";
+path_to_json = "../../json_files/";
+
+
+parse_for_albums()     
 check_for_other_albums()  
 print("check complete")
     

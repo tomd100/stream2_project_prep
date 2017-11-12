@@ -3,6 +3,9 @@ from pymongo import MongoClient
 import json
 import csv
 
+import sys
+sys.path.insert(0, '../../mongodb_auth')
+
 from auth import MONGODB_URI
 
 # ------------------------------------------------------------------------------
@@ -23,14 +26,16 @@ def parse_text():
     #--------------------------------------------------------------------------- 
     
     # Album list
-    with open("text_files/album_list.txt", "r") as inFile:
+    file_name = path_to_data + "album_list.txt"
+    with open(file_name, "r") as inFile:
         for line in inFile:
             line = line[:-1]    # remove end-of-line char
             album_list.append(line);
     inFile.close();
     
     # Album release year
-    with open("text_files/album_release_years.txt", "r") as inFile:
+    file_name = path_to_data + "album_release_years.txt"
+    with open(file_name, "r") as inFile:
         for line in inFile:
             line = line[:-1]    # remove end-of-line char
             pos = line.find("(");
@@ -47,7 +52,8 @@ def parse_text():
     inFile.close();
     
     # Song chart position
-    with open('text_files/top_30_tracks.csv', newline ='') as inFile:
+    file_name = path_to_data + "top_30_tracks.csv"
+    with open(file_name, newline ='') as inFile:
         for line in inFile:
             line = line.split(",",1);
             song_chart_dict["pos"] = line[0].strip();
@@ -57,8 +63,8 @@ def parse_text():
     inFile.close();
 
     #---------------------------------------------------------------------------     
-    
-    with open("text_files/bd_web_page_copy.txt", 'r') as inFile:
+    file_name = path_to_data + "bd_web_page_copy.txt"
+    with open(file_name, 'r') as inFile:
         
         for line in inFile:
             
@@ -142,7 +148,8 @@ def parse_text():
                 
             song_list.append(song);
     
-    outFile = open("json_files/output.json", "+w")    
+    file_name = path_to_json + "output.json"
+    outFile = open(file_name, "+w")    
     outFile.write(json.dumps(song_list));
     outFile.close()
     
@@ -275,10 +282,9 @@ def get_song_chart_pos(song_title, song_chart_list):
 
 # ------------------------------------------------------------------------------
 
-def upload_mongo(song_list):
+def upload_mongo(song_list, collection_name):
     
     database_name = "stream2_project";
-    collection_name= "bob_dylan_songs";
     
     with MongoClient(MONGODB_URI) as conn:
         db = conn[database_name];
@@ -296,11 +302,10 @@ def upload_mongo(song_list):
 
 # ------------------------------------------------------------------------------
         
-def download_mongo():
+def download_mongo(collection_name):
     
     database_name = "stream2_project";
-    collection_name= "bob_dylan_songs";
-    
+
     with MongoClient(MONGODB_URI) as conn:
         db = conn[database_name];
         collection = db[collection_name];
@@ -329,7 +334,8 @@ def verify_data(song_list):
     print("Total unique ids (mongo): {0}".format(len(id_set)));  
     print("\n")
     
-    outFile = open("text_files/song_list.txt", "+w")    
+    file_name = path_to_text + "song_list.txt"
+    outFile = open(file_name, "+w")    
     song_list_sorted = list(song_set);
     song_list_sorted.sort()
     
@@ -344,12 +350,14 @@ def verify_data(song_list):
     song_list_import = [];
     top_30_list = [];
     
-    with open("text_files/song_list.txt", "r") as songFile:
+    file_name = path_to_text + "song_list.txt"
+    with open(file_name, "r") as songFile:
         for line in songFile:
             song_list_import.append(line.strip());
     songFile.close();
     
-    with open("text_files/top_30_tracks.csv", "r") as topFile:
+    file_name = path_to_data + "top_30_tracks.csv"
+    with open(file_name, "r") as topFile:
         for line in topFile:
             line = line.split(",",1)
             top_30_list.append(line[1].strip());
@@ -363,10 +371,14 @@ def verify_data(song_list):
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-song_list = parse_text();     
-upload_mongo(song_list);
+path_to_data = "../data/";
+path_to_text = "../../text_files/";
+path_to_json = "../../json_files/";
 
-song_list = download_mongo();
+song_list = parse_text();     
+# upload_mongo(song_list, "bob_dylan_songs");
+
+song_list = download_mongo("bob_dylan_songs");
 verify_data(song_list);
 
 

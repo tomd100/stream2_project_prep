@@ -28,6 +28,7 @@ def get_stripped():
     song_list = list(download_mongo("bob_dylan_songs"))
     for song in song_list:
         if song["album"] in album_list and song["num_plays"] != "0":
+            
             stripped_list.append(song)
 
     return stripped_list
